@@ -62,5 +62,7 @@ jobs:
               id: create_release
               uses: softprops/action-gh-release@v2
               with:
-                  files: ./mup-*
+                  # download-artifact actually downloads the files into a folder
+                  # with the same name as the artifact, this hack fixes that:
+                  files: ./mup-*/mup-*
                   token: ${{ secrets.GITHUB_TOKEN }}
