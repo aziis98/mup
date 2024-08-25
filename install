@@ -1,14 +1,38 @@
 #!/bin/sh
 
-if [ "$(uname)" != "Linux" ] || [ "$(uname -m)" != "x86_64" ]; then
-  echo "Error: for now prebuilt binaries are only available for Linux x86_64."
-  exit 1
-fi
+os=""
+arch=""
+
+case "$(uname)" in
+  Linux)
+    os="linux"
+
+    case "$(uname -m)" in
+      x86_64)
+        arch="amd64"
+        ;;
+      aarch64)
+        arch="arm64"
+        ;;
+      armv7l)
+        arch="arm"
+        ;;
+      *)
+        echo "Error: For now, prebuilt binaries are only available for x86_64, aarch64, and armv7l."
+        exit 1
+        ;;
+    esac
+    ;;
+  *)
+    echo "Error: For now, prebuilt binaries are only available for Linux"
+    exit 1
+    ;;
+esac
 
 TMP_FILE=$(mktemp /tmp/mup.XXXXXX)
 
 echo "Downloading latest version from GitHub releases..."
-wget -q --show-progress -O "$TMP_FILE" https://github.com/aziis98/mup/releases/latest/download/mup
+wget -q --show-progress -O "$TMP_FILE" "https://github.com/aziis98/mup/releases/latest/download/mup-$os-$arch"
 
 if [ $? -ne 0 ]; then
   echo "Error: Failed to download mup."
