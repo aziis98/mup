@@ -31,7 +31,7 @@ esac
 
 TMP_FILE=$(mktemp /tmp/mup.XXXXXX)
 
-echo "Downloading latest version from GitHub releases..."
+echo "Downloading GitHub releases: https://github.com/aziis98/mup/releases/latest/download/mup-$os-$arch"
 wget -q --show-progress -O "$TMP_FILE" "https://github.com/aziis98/mup/releases/latest/download/mup-$os-$arch"
 
 if [ $? -ne 0 ]; then
