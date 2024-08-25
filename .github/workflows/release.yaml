@@ -35,7 +35,7 @@ jobs:
 
             - name: Build
               run: |
-                  GOARCH=${{ matrix.arch }} CGO_ENABLED=0 go build -a -ldflags '-s -w' -o ./bin/mup-${{ matrix.name }}-${{ matrix.arch }} .
+                  CGO_ENABLED=0 go build -a -ldflags '-s -w' -o ./bin/mup-${{ matrix.name }}-${{ matrix.arch }} .
 
             - name: Upload binary
               uses: actions/upload-artifact@v3
