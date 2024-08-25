@@ -1,0 +1,31 @@
+name: Build and Release
+
+on:
+    push:
+        tags:
+            - 'v*.*.*'
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+
+            - name: Set up Go
+              uses: actions/setup-go@v4
+              with:
+                  go-version-file: './go.mod'
+
+            - name: Build
+              run: |
+                  CGO_ENABLED=0 go build -a -ldflags '-s -w' -o ./bin/mup .
+
+            - name: Create Release
+              id: create_release
+              uses: softprops/action-gh-release@v1
+              with:
+                  files: ./bin/mup
+                  token: ${{ secrets.GITHUB_TOKEN }}
