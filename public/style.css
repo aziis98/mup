@@ -1,0 +1,138 @@
+/* Vercel Modern Theme */
+
+*,
+*::before,
+*::after {
+    font-family: inherit;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    min-height: 100%;
+    width: 100%;
+}
+
+img {
+    display: block;
+}
+
+input[type='file'] {
+    display: none;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+
+    line-height: 1.5;
+    color: #333;
+    background-color: #f9f9f9;
+    margin: 0;
+
+    padding: 1rem;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 1rem;
+
+    line-height: 1.5;
+}
+
+a {
+    color: #0070f3;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    margin: 0;
+    font-weight: 600;
+}
+
+h1 {
+    font-size: 2.5rem;
+    text-align: center;
+
+    font-weight: 300;
+}
+
+h1 strong {
+    font-weight: 500;
+}
+
+h2 {
+    font-size: 1.5rem;
+    text-align: center;
+    padding: 0 1rem;
+}
+
+button,
+input[type='submit'],
+input[type='file'] + label {
+    cursor: pointer;
+    border: none;
+    background-color: #444;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    font-size: 1rem;
+    transition: background-color 0.2s;
+}
+
+form {
+    display: grid;
+    place-items: center;
+    gap: 1rem;
+
+    width: 100%;
+    max-width: 42rem;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 0.25rem;
+
+    box-shadow: 0 0 1rem rgba(0, 0, 0, 0.075);
+
+    width: 100%;
+    max-width: 42rem;
+}
+
+ul:empty {
+    display: none;
+}
+
+li {
+    display: grid;
+    padding: 0.5rem 1rem;
+}
+
+li:not(:last-child) {
+    border-bottom: 1px solid #ddd;
+}
+
+li a {
+    color: #444;
+}
+
+#status:empty {
+    display: none;
+}

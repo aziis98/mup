@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <link rel="stylesheet" href="style.css" />
+
+        <title>μploader</title>
+    </head>
+    <body>
+        <h1><strong>μ</strong>ploader</h1>
+        <form enctype="multipart/form-data" action="/" method="post">
+            <input type="file" id="file-input" name="files" multiple />
+            <label for="file-input">Select Files</label>
+            <div id="status"></div>
+            <ul id="selected-files"></ul>
+            <input type="submit" value="Upload" />
+            <progress id="progress-bar" value="0" max="100"></progress>
+        </form>
+
+        <h2>Recent Uploads</h2>
+        <ul>
+            {{ range .Uploads }}
+            <li>
+                <a href="/uploads/{{ . }}">{{ . }}</a>
+            </li>
+            {{ end }}
+        </ul>
+
+        <script>
+            const $fileInput = document.querySelector('#file-input')
+
+            const $status = document.querySelector('#status')
+            const $selectedFiles = document.querySelector('#selected-files')
+
+            const $form = document.querySelector('form')
+            const $progress = document.querySelector('#progress-bar')
+
+            function updateRecentUploads() {
+                fetch('/uploads')
+                    .then(response => response.json())
+                    .then(data => {
+                        const $uploads = document.querySelector('ul')
+                        $uploads.innerHTML = ''
+
+                        for (const upload of data) {
+                            const $li = document.createElement('li')
+                            const $a = document.createElement('a')
+                            $a.href = `/uploads/${upload}`
+                            $a.textContent = upload
+                            $li.appendChild($a)
+                            $uploads.appendChild($li)
+                        }
+                    })
+            }
+
+            $fileInput.addEventListener('change', e => {
+                $status.textContent = `${$fileInput.files.length} file(s) selected`
+                $selectedFiles.innerHTML = ''
+
+                for (const file of $fileInput.files) {
+                    const $li = document.createElement('li')
+                    $li.textContent = file.name
+                    $selectedFiles.appendChild($li)
+                }
+            })
+
+            $form.addEventListener('submit', e => {
+                e.preventDefault()
+
+                const formData = new FormData($form)
+
+                if (formData.get('files').size === 0) {
+                    $status.textContent = 'No files selected'
+                    return
+                }
+
+                const xhr = new XMLHttpRequest()
+                xhr.open('POST', '/upload', true)
+
+                xhr.upload.addEventListener('progress', e => {
+                    const percent = (e.loaded / e.total) * 100
+                    $progress.value = percent
+                })
+
+                xhr.upload.addEventListener('load', () => {
+                    $progress.value = 100
+                })
+
+                xhr.upload.addEventListener('error', () => {
+                    $progress.value = 0
+                })
+
+                xhr.addEventListener('load', () => {
+                    if (xhr.status === 200) {
+                        $status.textContent = 'Upload complete'
+                        $fileInput.value = ''
+                        $selectedFiles.innerHTML = ''
+                        $progress.value = 0
+
+                        updateRecentUploads()
+                    } else {
+                        $status.textContent = 'Upload failed'
+                    }
+                })
+
+                xhr.send(formData)
+            })
+        </script>
+    </body>
+</html>
