@@ -26,14 +26,12 @@ Then you can run `mup` from anywhere in your terminal, the default upload direct
 ```bash
 $ git clone https://github.com/aziis98/mup
 $ cd mup
+
+# Run the server
+$ go run -v .
+
+# Build the binary
 $ go build -v -o bin/mup .
-```
-
-### Go Install
-
-```bash
-$ go install github.com/aziis98/mup
-$ mup
 ```
 
 ## Usage
