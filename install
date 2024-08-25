@@ -15,7 +15,7 @@ case "$(uname)" in
         arch="arm64"
         ;;
       armv7l)
-        arch="arm"
+        arch="armv7"
         ;;
       *)
         echo "Error: For now, prebuilt binaries are only available for x86_64, aarch64, and armv7l."
