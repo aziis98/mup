@@ -20,12 +20,12 @@
         </form>
 
         <h2>Recent Uploads</h2>
-        <ul>
-            {{ range .Uploads }}
+        <ul id="recent-uploads">
+            {{- range .Uploads }}
             <li>
                 <a href="/uploads/{{ . }}">{{ . }}</a>
             </li>
-            {{ end }}
+            {{ end -}}
         </ul>
 
         <script>
@@ -33,6 +33,7 @@
 
             const $status = document.querySelector('#status')
             const $selectedFiles = document.querySelector('#selected-files')
+            const $recentUploads = document.querySelector('#recent-uploads')
 
             const $form = document.querySelector('form')
             const $progress = document.querySelector('#progress-bar')
@@ -41,8 +42,7 @@
                 fetch('/uploads')
                     .then(response => response.json())
                     .then(data => {
-                        const $uploads = document.querySelector('ul')
-                        $uploads.innerHTML = ''
+                        $recentUploads.innerHTML = ''
 
                         for (const upload of data) {
                             const $li = document.createElement('li')
@@ -50,7 +50,7 @@
                             $a.href = `/uploads/${upload}`
                             $a.textContent = upload
                             $li.appendChild($a)
-                            $uploads.appendChild($li)
+                            $recentUploads.appendChild($li)
                         }
                     })
             }
