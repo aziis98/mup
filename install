@@ -1,5 +1,10 @@
 #!/bin/sh
 
+if [ "$(uname)" != "Linux" ] || [ "$(uname -m)" != "x86_64" ]; then
+  echo "Error: for now prebuilt binaries are only available for Linux x86_64."
+  exit 1
+fi
+
 TMP_FILE=$(mktemp /tmp/mup.XXXXXX)
 
 echo "Downloading latest version from GitHub releases..."
