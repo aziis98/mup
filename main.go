@@ -97,8 +97,21 @@ func main() {
 
 	uploadFolder := pflag.Arg(0)
 	if uploadFolder == "" {
-		log.Println("No upload folder specified, using 'Uploads'")
-		uploadFolder = "Uploads"
+		p, err := filepath.Abs("./Uploads")
+		if err != nil {
+			log.Fatalf("Error getting the absolute path of the upload folder: %v", err)
+		}
+
+		uploadFolder = p
+		log.Printf("Using default upload folder %q", uploadFolder)
+	} else {
+		p, err := filepath.Abs(uploadFolder)
+		if err != nil {
+			log.Fatalf("Error getting the absolute path of the upload folder: %v", err)
+		}
+
+		uploadFolder = p
+		log.Printf("Using upload folder %q", uploadFolder)
 	}
 
 	if _, err := os.Stat(uploadFolder); os.IsNotExist(err) {
