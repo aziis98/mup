@@ -13,7 +13,7 @@ RUN go build -v -o bin/mup .
 # Stage 2: Create a lightweight image for running the binary
 FROM alpine:latest
 
-WORKDIR /app
+WORKDIR /
 
 COPY --from=builder /app/bin/mup ./bin/mup
 
