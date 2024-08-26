@@ -16,7 +16,7 @@ case "$(uname)" in
       #   ;;
       # armv7l)
       #   arch="armv7"
-        ;;
+      # ;;
       *)
         echo "Error: For now, prebuilt binaries not available for this architecture"
         exit 1
