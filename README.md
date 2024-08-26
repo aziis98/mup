@@ -4,7 +4,6 @@
 <img src="https://github.com/user-attachments/assets/268d853f-9b69-4fa1-853e-e645818c3f6d" alt="screenshot" />
 </p>
 
-
 A simple file uploader that can be used to easily move and share files across the local network between devices with a web browser. 
 
 It only uses [Go Chi](https://github.com/go-chi/chi) and [pflag](https://github.com/spf13/pflag) as dependencies and the releases provide a statically linked binary for Linux.
@@ -36,9 +35,14 @@ $ go build -v -o bin/mup .
 
 ### Dockerfile
 
-```Dockerfile
+I provide this just to easily deploy on a local server. I **do not recomend to expose this publicly** on the web as there is no auth or password and there is no upload limit to the number of files and all files in the `Uploads/` folder are public by default for now.
+
+```bash shell
 $ docker build -t mup .
 $ docker run -p 5000:5000 -v $PWD/Uploads:/Uploads mup
+
+# On a LAN go to "<ip from below>:5000"
+$ ip addr | grep 'inet 192'
 ```
 
 ## Usage
