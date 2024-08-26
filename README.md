@@ -1,4 +1,4 @@
-# μploader - Go Micro Uploader
+# μploader - Micro Uploader
 
 <p align="center">
 <img src="https://github.com/user-attachments/assets/268d853f-9b69-4fa1-853e-e645818c3f6d" alt="screenshot" />
