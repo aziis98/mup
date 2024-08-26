@@ -34,10 +34,24 @@ $ go run -v .
 $ go build -v -o bin/mup .
 ```
 
+### Dockerfile
+
+```Dockerfile
+$ docker build -t mup .
+$ docker run -p 5000:5000 -v $PWD/Uploads:/Uploads mup
+```
+
 ## Usage
 
 ```bash
-# Start the server on port 5000 in the "Uploads" directory
-$ mup
-```
+$ mup --help
+Usage:
+  mup [OPTIONS] [UPLOAD_FOLDER]
 
+A micro file uploader, the default upload folder is 'Uploads'
+
+Options:
+  -h, --host string           Host to run the server on (default "0.0.0.0")
+  -s, --max-upload-size int   Maximum upload size in MB (default 100)
+  -p, --port int              Port to run the server on (default 5000)
+```

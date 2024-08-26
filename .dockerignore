@@ -1,0 +1,12 @@
+# Local files
+.env
+*.local*
+
+# Default upload directory
+Uploads/
+
+# Binaries
+bin/
+
+# Editors
+.vscode/
