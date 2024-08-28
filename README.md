@@ -15,7 +15,7 @@ It only uses [Go Chi](https://github.com/go-chi/chi) and [pflag](https://github.
 Run the following command to install the latest version to `~/.local/bin/mup`
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/aziis98/mup/main/install | sh
+curl -sSL https://raw.githubusercontent.com/aziis98/mup/main/install | sh
 ```
 
 Then you can run `mup` from anywhere in your terminal, the default upload directory is `Uploads` so this can even be run directly from the home folder (only the files inside `Uploads` are served to the client).
