@@ -1,4 +1,4 @@
-module github.com/aziis98/uploader
+module github.com/aziis98/mup
 
 go 1.23.0
 
