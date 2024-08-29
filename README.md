@@ -8,7 +8,7 @@ A simple file uploader that can be used to easily move and share files across th
 
 It only uses [Go Chi](https://github.com/go-chi/chi) and [pflag](https://github.com/spf13/pflag) as dependencies and the releases provide a statically linked binary for Linux.
 
-**Motivation.** Sometimes I want to move files between my pc and a device I do not own (and without using cables) with old browser versions (that generally has expired https certificates). When I try to search for a tool like this I always find random outdated projects that aren't easy to setup. So I made this tool that can be easily installed on linux systems.
+**Motivation.** Sometimes I want to move files between my pc and a device I do not own that has an old browser version (that generally means expired https certificates, oh and without any cables). When I try to search for a tool like this I always find random outdated projects that aren't easy to setup. So I made this tool that can be easily installed on all linux systems.
 
 ## Installation
 
