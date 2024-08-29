@@ -8,6 +8,8 @@ A simple file uploader that can be used to easily move and share files across th
 
 It only uses [Go Chi](https://github.com/go-chi/chi) and [pflag](https://github.com/spf13/pflag) as dependencies and the releases provide a statically linked binary for Linux.
 
+**Motivation.** Sometimes I want to move files between my pc and a device I do not own (and without using cables) with old browser versions (that generally has expired https certificates). When I try to search for a tool like this I always find random outdated projects that aren't easy to setup. So I made this tool that can be easily installed on linux systems.
+
 ## Installation
 
 ### Static Binary from Release
@@ -59,3 +61,9 @@ Options:
   -s, --max-upload-size int   Maximum upload size in MB (default 100)
   -p, --port int              Port to run the server on (default 5000)
 ```
+
+## To Do
+
+- [ ] Decrease minimum requirements (make this work without js, now needed for the upload with live progress bar)
+
+- [ ] Update Github Action to make a release for the Raspberry Pi (`aarch64` and `armv7l`)
