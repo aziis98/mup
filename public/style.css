@@ -1,9 +1,10 @@
-/* Vercel Modern Theme */
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
 
 *,
 *::before,
 *::after {
-    font-family: inherit;
+    font: inherit;
     margin: 0;
     box-sizing: border-box;
 }
@@ -24,6 +25,7 @@ input[type='file'] {
 
 body {
     font-family: 'Inter', sans-serif;
+    font-optical-sizing: auto;
     font-size: 16px;
 
     line-height: 1.5;
@@ -40,6 +42,11 @@ body {
     gap: 1rem;
 
     line-height: 1.5;
+}
+
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 20;
+    font-size: 20px;
 }
 
 a {
@@ -81,12 +88,36 @@ input[type='submit'],
 input[type='file'] + label {
     cursor: pointer;
     border: none;
-    background-color: #444;
+    background: #444;
     color: #fff;
     padding: 0.5rem 1rem;
     border-radius: 0.25rem;
-    font-size: 1rem;
-    transition: background-color 0.2s;
+    font-size: 16px;
+
+    line-height: 1.25;
+
+    transition: background 64ms;
+
+    &:hover {
+        background: #606060;
+    }
+
+    &.danger {
+        background: #c40909;
+
+        &:hover {
+            background: #e71d1d;
+        }
+    }
+
+    &.icon {
+        padding: 0;
+        display: grid;
+        place-content: center;
+
+        width: 1.5rem;
+        height: 1.5rem;
+    }
 }
 
 form {
@@ -122,7 +153,12 @@ ul:empty {
 
 li {
     display: grid;
-    padding: 0.5rem 1rem;
+    align-items: center;
+
+    word-break: break-all;
+    word-break: break-word;
+
+    padding: 0.5rem;
 }
 
 li:not(:last-child) {
@@ -135,4 +171,9 @@ li a {
 
 #status:empty {
     display: none;
+}
+
+#recent-uploads li {
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem;
 }

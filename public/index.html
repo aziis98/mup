@@ -10,20 +10,29 @@
     </head>
     <body>
         <h1><strong>μ</strong>ploader</h1>
+
         <form enctype="multipart/form-data" action="/" method="post">
             <input type="file" id="file-input" name="files" multiple />
             <label for="file-input">Select Files</label>
+
             <div id="status"></div>
             <ul id="selected-files"></ul>
+
             <input type="submit" value="Upload" />
+
             <progress id="progress-bar" value="0" max="100"></progress>
         </form>
 
         <h2>Recent Uploads</h2>
         <ul id="recent-uploads">
             {{- range .Uploads }}
-            <li>
+            <li data-filename="{{ . }}">
                 <a href="/uploads/{{ . }}">{{ . }}</a>
+                <div class="buttons">
+                    <button title="Delete file" class="danger icon">
+                        <span class="material-symbols-outlined">delete</span>
+                    </button>
+                </div>
             </li>
             {{ end -}}
         </ul>
@@ -33,10 +42,27 @@
 
             const $status = document.querySelector('#status')
             const $selectedFiles = document.querySelector('#selected-files')
-            const $recentUploads = document.querySelector('#recent-uploads')
 
             const $form = document.querySelector('form')
             const $progress = document.querySelector('#progress-bar')
+
+            const $recentUploads = document.querySelector('#recent-uploads')
+
+            function onDeleteFile(e) {
+                const filename = e.target.closest('li').dataset.filename
+
+                fetch(`/uploads/${filename}`, { method: 'DELETE' }).then(response => {
+                    if (response.ok) {
+                        updateRecentUploads()
+                    }
+                })
+            }
+
+            // Mount event listeners after load
+            $recentUploads.querySelectorAll('li .buttons').forEach($buttons => {
+                const [$deleteButton] = $buttons.children
+                $deleteButton.addEventListener('click', onDeleteFile)
+            })
 
             function updateRecentUploads() {
                 fetch('/uploads')
@@ -46,10 +72,25 @@
 
                         for (const upload of data) {
                             const $li = document.createElement('li')
+                            $li.dataset.filename = upload
+
                             const $a = document.createElement('a')
                             $a.href = `/uploads/${upload}`
                             $a.textContent = upload
+
+                            const $buttons = document.createElement('div')
+                            $buttons.classList.add('buttons')
+
+                            const $button = document.createElement('button')
+                            $button.title = 'Delete'
+                            $button.classList.add('danger', 'icon')
+                            $button.innerHTML = '<span class="material-symbols-outlined">delete</span>'
+                            $button.addEventListener('click', onDeleteFile)
+                            $buttons.appendChild($button)
+
                             $li.appendChild($a)
+                            $li.appendChild($buttons)
+
                             $recentUploads.appendChild($li)
                         }
                     })

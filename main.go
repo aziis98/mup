@@ -32,7 +32,36 @@ var (
 
 	port = pflag.IntP("port", "p", 5000, "Port to run the server on")
 	host = pflag.StringP("host", "h", "0.0.0.0", "Host to run the server on")
+
+	devMode bool
 )
+
+func servePublicFile(w http.ResponseWriter, r *http.Request, name string) {
+	if devMode {
+		http.ServeFile(w, r, name)
+		return
+	}
+
+	http.ServeFileFS(w, r, publicFS, name)
+}
+
+var indexTemplate *template.Template
+
+func renderTemplate(w http.ResponseWriter, data any) {
+	if devMode {
+		indexTemplate = template.Must(template.ParseFiles("public/index.html"))
+	}
+	if indexTemplate == nil {
+		indexTemplate = template.Must(template.ParseFS(publicFS, "public/index.html"))
+	}
+
+	w.Header().Set("Content-Type", "text/html")
+	err := indexTemplate.Execute(w, data)
+	if err != nil {
+		log.Println("Error rendering the template")
+		log.Println(err)
+	}
+}
 
 type Map map[string]any
 
@@ -42,17 +71,6 @@ func filenameToSlug(filename string) string {
 
 	pattern := regexp.MustCompile(`[^a-zA-Z0-9]+`)
 	return strings.ToLower(pattern.ReplaceAllString(filename, "-")) + ext
-}
-
-func renderTemplate(w http.ResponseWriter, data any) {
-	tmpl := template.Must(template.ParseFS(publicFS, "public/index.html"))
-
-	w.Header().Set("Content-Type", "text/html")
-	err := tmpl.Execute(w, data)
-	if err != nil {
-		log.Println("Error rendering the template")
-		log.Println(err)
-	}
 }
 
 func getUploads(uploadFolder string) ([]string, error) {
@@ -72,6 +90,11 @@ func getUploads(uploadFolder string) ([]string, error) {
 }
 
 func main() {
+	devMode = strings.HasPrefix(os.Getenv("MODE"), "dev")
+	if devMode {
+		log.Printf("Running in development mode")
+	}
+
 	pflag.CommandLine.Init(os.Args[0], pflag.ContinueOnError)
 	pflag.Usage = func() {
 		w := os.Stderr
@@ -140,7 +163,7 @@ func main() {
 	})
 
 	r.Get("/style.css", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFileFS(w, r, publicFS, "public/style.css")
+		servePublicFile(w, r, "public/style.css")
 	})
 
 	r.Get("/uploads", func(w http.ResponseWriter, r *http.Request) {
@@ -159,6 +182,17 @@ func main() {
 	r.Get("/uploads/{filename}", func(w http.ResponseWriter, r *http.Request) {
 		filename := chi.URLParam(r, "filename")
 		http.ServeFile(w, r, path.Join(uploadFolder, filename))
+	})
+
+	r.Delete("/uploads/{filename}", func(w http.ResponseWriter, r *http.Request) {
+		filename := chi.URLParam(r, "filename")
+
+		if err := os.Remove(path.Join(uploadFolder, filename)); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusNoContent)
 	})
 
 	r.Post("/upload", func(w http.ResponseWriter, r *http.Request) {
