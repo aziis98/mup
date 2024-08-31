@@ -12,6 +12,14 @@ It only uses [Go Chi](https://github.com/go-chi/chi) and [pflag](https://github.
 
 **Motivation.** Sometimes I want to move files between my pc and a device I do not own that has an old browser version (that generally means expired https certificates, oh and without any cables). When I try to search for a tool like this I always find random outdated projects that aren't easy to setup. So I made this tool that can be easily installed on all linux systems.
 
+## Demo
+
+I have setup a demo hosted on glitch.me that clears the uploads every couple of minutes. This is just to preview the UI, use at your own risk:
+ 
+<p align="center">
+<a href="https://checkered-pyrite-garage.glitch.me">https://checkered-pyrite-garage.glitch.me</a>
+</p>
+
 ## Installation
 
 ### Static Binary from Release
