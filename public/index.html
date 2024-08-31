@@ -81,12 +81,12 @@
                             const $buttons = document.createElement('div')
                             $buttons.classList.add('buttons')
 
-                            const $button = document.createElement('button')
-                            $button.title = 'Delete'
-                            $button.classList.add('danger', 'icon')
-                            $button.innerHTML = '<span class="material-symbols-outlined">delete</span>'
-                            $button.addEventListener('click', onDeleteFile)
-                            $buttons.appendChild($button)
+                            const $deleteButton = document.createElement('button')
+                            $deleteButton.title = 'Delete'
+                            $deleteButton.classList.add('danger', 'icon')
+                            $deleteButton.innerHTML = '<span class="material-symbols-outlined">delete</span>'
+                            $deleteButton.addEventListener('click', onDeleteFile)
+                            $buttons.appendChild($deleteButton)
 
                             $li.appendChild($a)
                             $li.appendChild($buttons)
