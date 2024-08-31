@@ -1,7 +1,7 @@
 # μploader - Micro Uploader
 
 <p align="center">
-<img src="https://github.com/user-attachments/assets/268d853f-9b69-4fa1-853e-e645818c3f6d" alt="screenshot" />
+<img width="800px" src="https://github.com/user-attachments/assets/4501778a-109e-4478-95a6-e617b7fc3160" alt="screenshot" />
 </p>
 
 A simple file uploader that can be used to easily move and share files across the local network between devices with a web browser. 
