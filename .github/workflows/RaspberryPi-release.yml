@@ -1,0 +1,80 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: linux
+            os: ubuntu-latest
+            arch: amd64
+          - name: linux
+            os: ubuntu-latest
+            arch: arm64  # For Raspberry Pi aarch64 (64-bit)
+          - name: linux
+            os: ubuntu-latest
+            arch: armv7  # For Raspberry Pi armv7l (32-bit)
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: arm, arm64  # Enable QEMU for ARM architectures
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: './go.mod'
+
+      - name: Build
+        run: |
+          # Set appropriate GOARCH based on the target architecture
+          if [ "${{ matrix.arch }}" = "armv7" ]; then
+            GOARCH=arm GOARM=7
+          else
+            GOARCH=${{ matrix.arch }}
+          fi
+          
+          # Cross-compiling with CGO disabled for static builds
+          CGO_ENABLED=0 GOOS=linux GOARCH=$GOARCH go build -a -ldflags '-s -w' -o ./bin/mup-${{ matrix.name }}-${{ matrix.arch }} .
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: mup-${{ matrix.name }}-${{ matrix.arch }}
+          path: ./bin/mup-${{ matrix.name }}-${{ matrix.arch }}
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all binaries
+        uses: actions/download-artifact@v4
+
+      - name: Print PWD and LS
+        run: |
+          pwd
+          ls -la
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          # Downloaded artifacts are in directories named after the artifacts, fix pathing
+          files: ./mup-*/mup-*
+          token: ${{ secrets.GITHUB_TOKEN }} 
