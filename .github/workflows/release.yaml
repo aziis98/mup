@@ -2,8 +2,8 @@ name: Build and Release
 
 on:
     push:
-        tags:
-            - 'v*.*.*'
+        branches:
+                - main 
 
 jobs:
     build:
@@ -41,7 +41,7 @@ jobs:
             - name: Build
               run: |
                   mkdir -p ./bin
-                  if [[ "${{ matrix.arch }}" == "arm64" ]]; then
+                  if [[ "${{ matrix.arch }}" == "aarch64" ]]; then
                     GOARCH=arm64 CC=aarch64-linux-gnu-gcc CGO_ENABLED=1 go build -a -ldflags '-s -w' -o ./bin/mup-${{ matrix.name }}-${{ matrix.arch }} .
                   elif [[ "${{ matrix.arch }}" == "armv7" ]]; then
                     GOARCH=arm GOARM=7 CC=arm-linux-gnueabihf-gcc CGO_ENABLED=1 go build -a -ldflags '-s -w' -o ./bin/mup-${{ matrix.name }}-${{ matrix.arch }} .
