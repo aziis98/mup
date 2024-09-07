@@ -16,7 +16,7 @@ jobs:
                       arch: amd64
                     - name: linux
                       os: ubuntu-latest
-                      arch: arm64
+                      arch: aarch64
                     - name: linux
                       os: ubuntu-latest
                       arch: armv7
