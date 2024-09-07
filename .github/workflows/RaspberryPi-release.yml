@@ -1,16 +1,19 @@
 name: Build and Release
 
 on:
-  push:
-    branches:
-       - main 
+ push:
+   branches:
+      - main 
 
 jobs:
     build:
-        runs-on: ${{ matrix.os }}
+        runs-on: ubuntu-latest
         strategy:
             matrix:
                 include:
+                    - name: linux
+                      os: ubuntu-latest
+                      arch: amd64
                     - name: linux
                       os: ubuntu-latest
                       arch: arm64
@@ -30,9 +33,21 @@ jobs:
               with:
                   go-version-file: './go.mod'
 
+            - name: Install Cross-Compilation Tools
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu
+
             - name: Build
               run: |
-                  CGO_ENABLED=0 GOARCH=${{ matrix.arch }} go build -a -ldflags '-s -w' -o ./bin/mup-${{ matrix.name }}-${{ matrix.arch }} .
+                  mkdir -p ./bin
+                  if [[ "${{ matrix.arch }}" == "arm64" ]]; then
+                    GOARCH=arm64 CC=aarch64-linux-gnu-gcc CGO_ENABLED=1 go build -a -ldflags '-s -w' -o ./bin/mup-${{ matrix.name }}-${{ matrix.arch }} .
+                  elif [[ "${{ matrix.arch }}" == "armv7" ]]; then
+                    GOARCH=arm GOARM=7 CC=arm-linux-gnueabihf-gcc CGO_ENABLED=1 go build -a -ldflags '-s -w' -o ./bin/mup-${{ matrix.name }}-${{ matrix.arch }} .
+                  else
+                    GOARCH=${{ matrix.arch }} CGO_ENABLED=0 go build -a -ldflags '-s -w' -o ./bin/mup-${{ matrix.name }}-${{ matrix.arch }} .
+                  fi
 
             - name: Upload binary
               uses: actions/upload-artifact@v4
