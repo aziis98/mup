@@ -1,9 +1,9 @@
 name: Build and Release
 
 on:
- push:
-   branches:
-      - main 
+    push:
+        tags:
+            - 'v*.*.*' 
 
 jobs:
     build:
