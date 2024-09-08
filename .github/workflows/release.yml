@@ -1,123 +1,138 @@
 name: Build, Test, and Release
 
 on:
-    push:
-        tags:
-            - 'v*.*.*'
+  push:
+    tags:
+      - 'v*.*.*'
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        strategy:
-            matrix:
-                include:
-                    - name: linux
-                      os: ubuntu-latest
-                      arch: amd64
-                    - name: linux
-                      os: ubuntu-latest
-                      arch: arm64
-                    - name: linux
-                      os: ubuntu-latest
-                      arch: armv7
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: linux
+            os: ubuntu-latest
+            arch: amd64
+          - name: linux
+            os: ubuntu-latest
+            arch: arm64
+          - name: linux
+            os: ubuntu-latest
+            arch: armv7
 
-        permissions:
-            contents: write
+    permissions:
+      contents: write
 
-        steps:
-            - name: Checkout Repository
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-            - name: Set up Go
-              uses: actions/setup-go@v5
-              with:
-                  go-version-file: './go.mod'
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: './go.mod'
 
-            - name: Install Cross-Compilation Tools
-              run: |
-                  sudo apt-get update
-                  sudo apt-get install -y gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu
+      - name: Install Cross-Compilation Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --fix-missing gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu
 
-            - name: Build
-              run: |
-                  mkdir -p ./bin
-                  if [[ "${{ matrix.arch }}" == "arm64" ]]; then
-                    GOARCH=arm64 CC=aarch64-linux-gnu-gcc CGO_ENABLED=1 go build -a -ldflags '-s -w' -o ./bin/mup-${{ matrix.arch }} .
-                  elif [[ "${{ matrix.arch }}" == "armv7" ]]; then
-                    GOARCH=arm GOARM=7 CC=arm-linux-gnueabihf-gcc CGO_ENABLED=1 go build -a -ldflags '-s -w' -o ./bin/mup-${{ matrix.arch }} .
-                  else
-                    GOARCH=${{ matrix.arch }} CGO_ENABLED=0 go build -a -ldflags '-s -w' -o ./bin/mup-${{ matrix.arch }} .
-                  fi
+      - name: Build
+        run: |
+          mkdir -p ./bin
+          if [[ "${{ matrix.arch }}" == "arm64" ]]; then
+            GOARCH=arm64 CC=aarch64-linux-gnu-gcc CGO_ENABLED=1 go build -a -ldflags '-s -w' -o ./bin/mup-${{ matrix.arch }} .
+          elif [[ "${{ matrix.arch }}" == "armv7" ]]; then
+            GOARCH=arm GOARM=7 CC=arm-linux-gnueabihf-gcc CGO_ENABLED=1 go build -a -ldflags '-s -w' -o ./bin/mup-${{ matrix.arch }} .
+          else
+            GOARCH=${{ matrix.arch }} CGO_ENABLED=0 go build -a -ldflags '-s -w' -o ./bin/mup-${{ matrix.arch }} .
+          fi
 
-            - name: Upload binary
-              uses: actions/upload-artifact@v4
-              with:
-                  name: mup-${{ matrix.arch }}-binary
-                  path: ./bin/mup-${{ matrix.arch }}
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: mup-${{ matrix.arch }}-binary
+          path: ./bin/mup-${{ matrix.arch }}
 
-    test:
-        runs-on: ubuntu-latest
-        needs: build
-        strategy:
-            matrix:
-                arch: [arm64, armv7]
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    strategy:
+      matrix:
+        arch: [arm64, armv7]
 
-        steps:
-            - name: Checkout Repository
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-            - name: Install QEMU for Cross-Platform Emulation
-              run: |
-                  sudo apt-get update
-                  sudo apt-get install -y qemu-user-static
+      - name: Install QEMU for Cross-Platform Emulation
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static binfmt-support qemu-user qemu-user-binfmt
 
-            - name: Download binary for testing
-              uses: actions/download-artifact@v4
-              with:
-                  name: mup-${{ matrix.arch }}-binary
-                  path: ./bin/
+      - name: Fix Broken Dependencies
+        run: |
+          sudo apt-get -f install
+          sudo dpkg --configure -a
 
-            - name: Verify Binary Exists
-              run: |
-                  ls -la ./bin/
-                  if [[ ! -f "./bin/mup-${{ matrix.arch }}" ]]; then
-                    echo "Error: Binary file not found!"
-                    exit 1
-                  fi
+      - name: Setup Arm64/Armv7 Emulation Environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --fix-missing debootstrap
+          if [[ "${{ matrix.arch }}" == "arm64" ]]; then
+            sudo debootstrap --arch=arm64 focal ./arm64-root http://ports.ubuntu.com/
+          elif [[ "${{ matrix.arch }}" == "armv7" ]]; then
+            sudo debootstrap --arch=armhf focal ./armv7-root http://ports.ubuntu.com/
+          fi
 
-            - name: Make Binary Executable
-              run: |
-                  chmod +x ./bin/mup-${{ matrix.arch }}
+      - name: Download binary for testing
+        uses: actions/download-artifact@v4
+        with:
+          name: mup-${{ matrix.arch }}-binary
+          path: ./bin/
 
-            - name: Test Binary and Output Result
-              run: |
-                  if [[ "${{ matrix.arch }}" == "arm64" ]]; then
-                    echo "Testing arm64 binary..."
-                    qemu-aarch64-static ./bin/mup-arm64 --version
-                  elif [[ "${{ matrix.arch }}" == "armv7" ]]; then
-                    echo "Testing armv7 binary..."
-                    qemu-arm-static ./bin/mup-armv7 --version
-                  fi
-                  echo "Test for ${{ matrix.arch }} completed."
+      - name: Verify Binary Exists
+        run: |
+          ls -la ./bin/
+          if [[ ! -f "./bin/mup-${{ matrix.arch }}" ]]; then
+            echo "Error: Binary file not found!"
+            exit 1
+          fi
 
-    release:
-        runs-on: ubuntu-latest
-        needs: [build, test]
-        permissions:
-            contents: write
+      - name: Make Binary Executable
+        run: |
+          chmod +x ./bin/mup-${{ matrix.arch }}
 
-        steps:
-            - name: Download all binaries
-              uses: actions/download-artifact@v4
+      - name: Test Binary and Output Result
+        run: |
+          if [[ "${{ matrix.arch }}" == "arm64" ]]; then
+            echo "Testing arm64 binary..."
+            sudo chroot ./arm64-root /usr/bin/qemu-aarch64-static /bin/bash -c "./bin/mup-arm64 --version"
+          elif [[ "${{ matrix.arch }}" == "armv7" ]]; then
+            echo "Testing armv7 binary..."
+            sudo chroot ./armv7-root /usr/bin/qemu-arm-static /bin/bash -c "./bin/mup-armv7 --version"
+          fi
+          echo "Test for ${{ matrix.arch }} completed."
 
-            - name: Print PWD and LS
-              run: |
-                  pwd
-                  ls -la
+  release:
+    runs-on: ubuntu-latest
+    needs: [build, test]
+    permissions:
+      contents: write
 
-            - name: Create Release
-              id: create_release
-              uses: softprops/action-gh-release@v2
-              with:
-                  files: ./bin/mup-*
-                  token: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Download all binaries
+        uses: actions/download-artifact@v4
+
+      - name: Print PWD and LS
+        run: |
+          pwd
+          ls -la
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./bin/mup-*
+          token: ${{ secrets.GITHUB_TOKEN }}
