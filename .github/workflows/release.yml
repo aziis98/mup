@@ -42,18 +42,18 @@ jobs:
               run: |
                   mkdir -p ./bin
                   if [[ "${{ matrix.arch }}" == "arm64" ]]; then
-                    GOARCH=arm64 CC=aarch64-linux-gnu-gcc CGO_ENABLED=1 go build -a -ldflags '-s -w' -o ./bin/mup-${{ matrix.name }}-${{ matrix.arch }} .
+                    GOARCH=arm64 CC=aarch64-linux-gnu-gcc CGO_ENABLED=1 go build -a -ldflags '-s -w' -o ./bin/mup-${{ matrix.arch }} .
                   elif [[ "${{ matrix.arch }}" == "armv7" ]]; then
-                    GOARCH=arm GOARM=7 CC=arm-linux-gnueabihf-gcc CGO_ENABLED=1 go build -a -ldflags '-s -w' -o ./bin/mup-${{ matrix.name }}-${{ matrix.arch }} .
+                    GOARCH=arm GOARM=7 CC=arm-linux-gnueabihf-gcc CGO_ENABLED=1 go build -a -ldflags '-s -w' -o ./bin/mup-${{ matrix.arch }} .
                   else
-                    GOARCH=${{ matrix.arch }} CGO_ENABLED=0 go build -a -ldflags '-s -w' -o ./bin/mup-${{ matrix.name }}-${{ matrix.arch }} .
+                    GOARCH=${{ matrix.arch }} CGO_ENABLED=0 go build -a -ldflags '-s -w' -o ./bin/mup-${{ matrix.arch }} .
                   fi
 
             - name: Upload binary
               uses: actions/upload-artifact@v4
               with:
                   name: mup-${{ matrix.arch }}-binary
-                  path: ./bin/mup-${{ matrix.name }}-${{ matrix.arch }}
+                  path: ./bin/mup-${{ matrix.arch }}
 
     test:
         runs-on: ubuntu-latest
@@ -75,19 +75,28 @@ jobs:
               uses: actions/download-artifact@v4
               with:
                   name: mup-${{ matrix.arch }}-binary
+                  path: ./bin/
+
+            - name: Verify Binary Exists
+              run: |
+                  ls -la ./bin/
+                  if [[ ! -f "./bin/mup-${{ matrix.arch }}" ]]; then
+                    echo "Error: Binary file not found!"
+                    exit 1
+                  fi
 
             - name: Make Binary Executable
               run: |
-                  chmod +x ./bin/mup-linux-${{ matrix.arch }}
+                  chmod +x ./bin/mup-${{ matrix.arch }}
 
             - name: Test Binary and Output Result
               run: |
                   if [[ "${{ matrix.arch }}" == "arm64" ]]; then
                     echo "Testing arm64 binary..."
-                    qemu-aarch64-static ./bin/mup-linux-arm64 --version
+                    qemu-aarch64-static ./bin/mup-arm64 --version
                   elif [[ "${{ matrix.arch }}" == "armv7" ]]; then
                     echo "Testing armv7 binary..."
-                    qemu-arm-static ./bin/mup-linux-armv7 --version
+                    qemu-arm-static ./bin/mup-armv7 --version
                   fi
                   echo "Test for ${{ matrix.arch }} completed."
 
@@ -110,5 +119,5 @@ jobs:
               id: create_release
               uses: softprops/action-gh-release@v2
               with:
-                  files: ./mup-*/mup-*
+                  files: ./bin/mup-*
                   token: ${{ secrets.GITHUB_TOKEN }}
