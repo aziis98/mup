@@ -76,6 +76,10 @@ jobs:
               with:
                   name: mup-${{ matrix.arch }}-binary
 
+            - name: Make Binary Executable
+              run: |
+                  chmod +x ./bin/mup-linux-${{ matrix.arch }}
+
             - name: Test Binary and Output Result
               run: |
                   if [[ "${{ matrix.arch }}" == "arm64" ]]; then
