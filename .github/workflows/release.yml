@@ -69,7 +69,17 @@ jobs:
             - name: Install QEMU for Cross-Platform Emulation
               run: |
                   sudo apt-get update
-                  sudo apt-get install -y qemu-user-static binfmt-support
+                  sudo apt-get install -y qemu-user-static binfmt-support qemu-user qemu-user-binfmt
+
+            - name: Setup Arm64/Armv7 Emulation Environment
+              run: |
+                  if [[ "${{ matrix.arch }}" == "arm64" ]]; then
+                    sudo apt-get install -y debootstrap
+                    sudo debootstrap --arch=arm64 focal ./arm64-root http://ports.ubuntu.com/
+                  elif [[ "${{ matrix.arch }}" == "armv7" ]]; then
+                    sudo apt-get install -y debootstrap
+                    sudo debootstrap --arch=armhf focal ./armv7-root http://ports.ubuntu.com/
+                  fi
 
             - name: Download binary for testing
               uses: actions/download-artifact@v4
@@ -93,10 +103,10 @@ jobs:
               run: |
                   if [[ "${{ matrix.arch }}" == "arm64" ]]; then
                     echo "Testing arm64 binary..."
-                    qemu-aarch64-static ./bin/mup-arm64 --version
+                    sudo chroot ./arm64-root /usr/bin/qemu-aarch64-static /bin/bash -c "./bin/mup-arm64 --version"
                   elif [[ "${{ matrix.arch }}" == "armv7" ]]; then
                     echo "Testing armv7 binary..."
-                    qemu-arm-static ./bin/mup-armv7 --version
+                    sudo chroot ./armv7-root /usr/bin/qemu-arm-static /bin/bash -c "./bin/mup-armv7 --version"
                   fi
                   echo "Test for ${{ matrix.arch }} completed."
 
