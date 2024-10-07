@@ -4,22 +4,22 @@ on:
     push:
         tags:
             - 'v*.*.*'
-
+ 
 jobs:
     build:
-        runs-on: ${{ matrix.os }}
+        runs-on: ubuntu-latest
         strategy:
             matrix:
                 include:
                     - name: linux
                       os: ubuntu-latest
                       arch: amd64
-                    # - name: linux
-                    #   os: ubuntu-latest
-                    #   arch: arm64
-                    # - name: linux
-                    #   os: ubuntu-latest
-                    #   arch: armv7
+                    - name: linux
+                      os: ubuntu-latest
+                      arch: aarch64
+                    - name: linux
+                      os: ubuntu-latest
+                      arch: armv7
 
         permissions:
             contents: write
@@ -33,9 +33,21 @@ jobs:
               with:
                   go-version-file: './go.mod'
 
+            - name: Install Cross-Compilation Tools
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu
+
             - name: Build
               run: |
-                  CGO_ENABLED=0 go build -a -ldflags '-s -w' -o ./bin/mup-${{ matrix.name }}-${{ matrix.arch }} .
+                  mkdir -p ./bin
+                  if [[ "${{ matrix.arch }}" == "aarch64" ]]; then
+                    GOARCH=arm64 CC=aarch64-linux-gnu-gcc CGO_ENABLED=1 go build -a -ldflags '-s -w' -o ./bin/mup-${{ matrix.name }}-${{ matrix.arch }} .
+                  elif [[ "${{ matrix.arch }}" == "armv7" ]]; then
+                    GOARCH=arm GOARM=7 CC=arm-linux-gnueabihf-gcc CGO_ENABLED=1 go build -a -ldflags '-s -w' -o ./bin/mup-${{ matrix.name }}-${{ matrix.arch }} .
+                  else
+                    GOARCH=${{ matrix.arch }} CGO_ENABLED=0 go build -a -ldflags '-s -w' -o ./bin/mup-${{ matrix.name }}-${{ matrix.arch }} .
+                  fi
 
             - name: Upload binary
               uses: actions/upload-artifact@v4
@@ -62,7 +74,5 @@ jobs:
               id: create_release
               uses: softprops/action-gh-release@v2
               with:
-                  # download-artifact actually downloads the files into a folder
-                  # with the same name as the artifact, this hack fixes that:
                   files: ./mup-*/mup-*
                   token: ${{ secrets.GITHUB_TOKEN }}
