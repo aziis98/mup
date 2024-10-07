@@ -11,12 +11,12 @@ case "$(uname)" in
       x86_64)
         arch="amd64"
         ;;
-      # aarch64)
-      #   arch="arm64"
-      #   ;;
-      # armv7l)
-      #   arch="armv7"
-      # ;;
+      aarch64)
+        arch="arm64"
+        ;;
+      armv7l)
+        arch="armv7"
+      ;;
       *)
         echo "Error: For now, prebuilt binaries not available for this architecture"
         exit 1
