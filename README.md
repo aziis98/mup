@@ -1,6 +1,6 @@
 # μploader - Micro Uploader
 
-[![Build and Release](https://github.com/aziis98/mup/actions/workflows/release.yaml/badge.svg)](https://github.com/aziis98/mup/actions/workflows/release.yaml)
+[![Build and Release](https://github.com/aziis98/mup/actions/workflows/release.yml/badge.svg)](https://github.com/aziis98/mup/actions/workflows/release.yml)
 
 <p align="center">
 <img width="800px" src="https://github.com/user-attachments/assets/4501778a-109e-4478-95a6-e617b7fc3160" alt="screenshot" />
