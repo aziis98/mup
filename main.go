@@ -210,6 +210,7 @@ func main() {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+		defer r.MultipartForm.RemoveAll()
 
 		files := r.MultipartForm.File["files"]
 		for _, file := range files {
